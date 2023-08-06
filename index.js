@@ -2,14 +2,14 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const cors = require('cors');
 
+require('dotenv').config();
+
 const authRouter = require('./routes/v1/auth_router');
 const setsRouter = require('./routes/v1/sets_router');
 const notesRouter = require('./routes/v1/notes_router');
 
 const app = express();
 const port = 5001;
-
-require('dotenv').config();
 
 app.use(bodyParser.json());
 app.use(cors());
