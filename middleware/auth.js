@@ -5,7 +5,7 @@ const config = process.env;
 const auth = (req, res, next) => {
   if (!req.body) return res.status(403).send('A token is required for authentication');
   
-  const token = req.body.token || req.query.token || req.headers['x-access-token'];
+  const token = req.cookies.jwt;
 
   if (!token) {
     return res.status(403).send('A token is required for authentication');
@@ -20,7 +20,7 @@ const auth = (req, res, next) => {
 };
 
 const noauth = (req, res, next) => {
-  const token = req.body.token || req.query.token || req.headers['x-access-token'];
+  const token = req.cookies.jwt;
 
   if (!token) {
     return next();

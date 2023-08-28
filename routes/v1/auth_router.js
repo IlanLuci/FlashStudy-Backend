@@ -57,7 +57,8 @@ authRouter.post('/register', noauth, async (req, res) => {
 
         await db.execute(`INSERT INTO accounts (username, email, password, tokens, sets, notes) VALUES (?, ?, ?, ?, ?, ?)`, [username, email.toLowerCase(), encryptedPassword, token, '', '']);
 
-        res.status(201).json({ token: token });
+        res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax', });
+        res.status(201);
     } catch(err) {
         console.log(err);
     }
@@ -84,16 +85,19 @@ authRouter.post('/login', noauth, async (req, res) => {
 
             await db.execute(`UPDATE accounts SET tokens = ? WHERE email = ?`, [token, email]);
 
-            res.status(201).json({ token: token });
+            res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax', });
+            res.status(201);
         }
     } catch(err) {
     console.log(err);
     }
 });
 
-authRouter.post('/logout', noauth, async (req, res) => {
+authRouter.get('/logout', noauth, async (req, res) => {
     try {
-        //logout logic
+        // remove the auth token from cookies
+        res.clearCookie('jwt');
+        res.status(200).send();
     } catch(err) {
         console.log(err);
     }

@@ -1,4 +1,5 @@
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const express = require('express');
 const cors = require('cors');
 
@@ -12,6 +13,7 @@ const app = express();
 const port = 5001;
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(cors());
 
 app.get('/', (req, res) => {
