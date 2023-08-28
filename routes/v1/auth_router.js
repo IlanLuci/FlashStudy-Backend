@@ -57,7 +57,7 @@ authRouter.post('/register', noauth, async (req, res) => {
 
         await db.execute(`INSERT INTO accounts (username, email, password, tokens, sets, notes) VALUES (?, ?, ?, ?, ?, ?)`, [username, email.toLowerCase(), encryptedPassword, token, '', '']);
 
-        res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax', path: '/' });
+        res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax' });
         res.status(201).send();
     } catch(err) {
         console.log(err);
@@ -85,7 +85,7 @@ authRouter.post('/login', noauth, async (req, res) => {
 
             await db.execute(`UPDATE accounts SET tokens = ? WHERE email = ?`, [token, email]);
 
-            res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax', path: '/' });
+            res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax' });
             res.status(201).send();
         }
     } catch(err) {
