@@ -14,7 +14,8 @@ const port = 5001;
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors());
+// TODO: set this in env file in the future
+app.use(cors(['https://flashstudy.org/']));
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
