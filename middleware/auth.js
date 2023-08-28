@@ -2,9 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const config = process.env;
 
-const auth = (req, res, next) => {
-  if (!req.body) return res.status(403).send('A token is required for authentication');
-  
+const auth = (req, res, next) => {  
   const token = req.cookies.jwt;
 
   if (!token) {
