@@ -93,7 +93,7 @@ authRouter.post('/login', noauth, async (req, res) => {
     }
 });
 
-authRouter.get('/logout', noauth, async (req, res) => {
+authRouter.get('/logout', auth, async (req, res) => {
     try {
         // remove the auth token from cookies
         res.clearCookie('jwt');
