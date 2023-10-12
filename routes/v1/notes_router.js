@@ -41,7 +41,7 @@ notesRouter.get('/get/:id', async (req, res) => {
         if (!result[0]) return res.status(400).send('invalid note id');
 
         // collect all note data and send it back to frontend
-        let note = { title: result[0].title, subject: result[0].subject, creator: result[0].creator, note: result[0].note.slice(1, result[0].note.length - 2) };
+        let note = { title: result[0].title, subject: result[0].subject, creator: result[0].creator, note: result[0].note };
 
         res.status(201).send(note);
     } catch(err) {
