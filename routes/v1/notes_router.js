@@ -11,7 +11,7 @@ const notesPerPage = 8;
 
 notesRouter.post('/create', auth, async (req, res) => {
     try {
-        //expect a string, string, string, json object
+        // expect a string, string, and string
         const { title, subject, note } = req.body;
 
         // check that both title and subject are provided
@@ -23,7 +23,7 @@ notesRouter.post('/create', auth, async (req, res) => {
         let id = await createId();
 
         // save note data and add note to creator's account
-        await db.execute(`INSERT INTO notes (id, title, subject, creator, note) VALUES (?, ?, ?, ?, ?)`, [id, title, subject, req.user.username, JSON.stringify(note)]);
+        await db.execute(`INSERT INTO notes (id, title, subject, creator, note) VALUES (?, ?, ?, ?, ?)`, [id, title, subject, req.user.username, note]);
         await db.execute(`UPDATE accounts SET notes = concat(notes , ?) WHERE username = ?`, [id + ',', req.user.username]);
         
         res.status(201).send(id.toString());
@@ -69,7 +69,7 @@ notesRouter.post('/edit', auth, async (req, res) => {
             return res.status(400).send('title and subject is required');
         }
 
-        await db.execute(`UPDATE notes SET title = ?, subject = ?, note = ? WHERE id = ?`, [title, subject, JSON.stringify(note), id]);
+        await db.execute(`UPDATE notes SET title = ?, subject = ?, note = ? WHERE id = ?`, [title, subject, note, id]);
         
         res.status(201).send();
     } catch(err) {
