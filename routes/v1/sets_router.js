@@ -18,16 +18,16 @@ setsRouter.post('/create', auth, async (req, res) => {
         let questionsStr = questions.join(',');
         let answersStr = answers.join(',');
 
-        // check that both name and description are provided
-        if (!(name && description)) {
-            return res.status(400).send('name and description is required');
+        // check that both name are provided
+        if (!(name)) {
+            return res.status(400).send('name is required');
         }
 
         // create unique id for set
         let id = await createId();
 
         // save set data and add set to creator's account
-        await db.execute(`INSERT INTO sets (id, creator, name, description, case_sensitive, q_name, q_items, a_name, a_items) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [id, req.user.username, name, description, true, q || 'question', questionsStr, a || 'answer', answersStr]);
+        await db.execute(`INSERT INTO sets (id, creator, name, description, case_sensitive, q_name, q_items, a_name, a_items) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [id, req.user.username, name, description || '', true, q || 'question', questionsStr, a || 'answer', answersStr]);
         await db.execute(`UPDATE accounts SET sets = concat(sets , ?) WHERE username = ?`, [id + ',', req.user.username]);
         
         res.status(201).send(id.toString());
@@ -72,12 +72,12 @@ setsRouter.post('/edit', auth, async (req, res) => {
         let questionsStr = questions.join(',');
         let answersStr = answers.join(',');
 
-        // check that both name and description are provided
-        if (!(name && description)) {
-            return res.status(400).send('name and description is required');
+        // check that both name are provided
+        if (!(name)) {
+            return res.status(400).send('name is required');
         }
 
-        await db.execute(`UPDATE sets SET name = ?, description = ?, q_name = ?, q_items = ?, a_name = ?, a_items = ? WHERE id = ?`, [name, description, q || 'question', questionsStr, a || 'answer', answersStr, id]);
+        await db.execute(`UPDATE sets SET name = ?, description = ?, q_name = ?, q_items = ?, a_name = ?, a_items = ? WHERE id = ?`, [name, description || '', q || 'question', questionsStr, a || 'answer', answersStr, id]);
         
         res.status(201).send();
     } catch(err) {
