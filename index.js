@@ -16,11 +16,6 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors({ origin: process.env.ALLOWED_DOMAINS.split(' '), credentials: true }));
 
-
-const db = require('./utils/db');
-db.execute(`ALTER TABLE sets ADD accent_sensitive BOOLEAN NULL DEFAULT false;`);
-db.execute(`ALTER TABLE sets ADD spanish BOOLEAN NULL DEFAULT false;`);
-
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });

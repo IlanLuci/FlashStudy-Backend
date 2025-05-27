@@ -45,7 +45,7 @@ setsRouter.get('/get/:id', async (req, res) => {
         if (!result[0]) return res.status(400).send('invalid set id');
 
         // collect all set data and send it back to frontend
-        let set = { name: result[0].name, description: result[0].description, creator: result[0].creator, q: result[0].q_name, a: result[0].a_name, questions: result[0].q_items.split(','), answers: result[0].a_items.split(','), completions: result[0].completions };
+        let set = { name: result[0].name, description: result[0].description, creator: result[0].creator, q: result[0].q_name, a: result[0].a_name, questions: result[0].q_items.split(','), answers: result[0].a_items.split(','), completions: result[0].completions, case_sensitive: result[0].case_sensitive };
 
         res.status(201).send(set);
     } catch(err) {
