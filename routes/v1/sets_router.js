@@ -12,7 +12,7 @@ const setsPerPage = 8;
 setsRouter.post('/create', auth, async (req, res) => {
     try {
         //expect a string, string, string, string, array of string, array of string
-        const { name, description, q, a, questions, answers } = req.body;
+        const { name, description, q, a, questions, answers, caseSensitive, accentSensitive, spanish } = req.body;
 
         // join array elements into a comma seperated string for db storage
         let questionsStr = questions.join(',');
@@ -23,11 +23,22 @@ setsRouter.post('/create', auth, async (req, res) => {
             return res.status(400).send('name is required');
         }
 
+        // validate boolean variables validity
+        if (caseSensitive !== true && caseSensitive !== false) {
+            return res.status(400).send('caseSensitive must be a boolean');
+        }
+        if (accentSensitive !== true && accentSensitive !== false) {
+            return res.status(400).send('accentSensitive must be a boolean');
+        }
+        if (spanish !== true && spanish !== false) {
+            return res.status(400).send('spanish must be a boolean');
+        }
+
         // create unique id for set
         let id = await createId();
 
         // save set data and add set to creator's account
-        await db.execute(`INSERT INTO sets (id, creator, name, description, case_sensitive, q_name, q_items, a_name, a_items) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [id, req.user.username, name, description || '', true, q || 'question', questionsStr, a || 'answer', answersStr]);
+        await db.execute(`INSERT INTO sets (id, creator, name, description, case_sensitive, accent_sensitive, spanish, q_name, q_items, a_name, a_items) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [id, req.user.username, name, description || '', caseSensitive, accentSensitive, spanish, q || 'question', questionsStr, a || 'answer', answersStr]);
         await db.execute(`UPDATE accounts SET sets = concat(sets , ?) WHERE username = ?`, [id + ',', req.user.username]);
         
         res.status(201).send(id.toString());
@@ -45,7 +56,7 @@ setsRouter.get('/get/:id', async (req, res) => {
         if (!result[0]) return res.status(400).send('invalid set id');
 
         // collect all set data and send it back to frontend
-        let set = { name: result[0].name, description: result[0].description, creator: result[0].creator, q: result[0].q_name, a: result[0].a_name, questions: result[0].q_items.split(','), answers: result[0].a_items.split(','), completions: result[0].completions, case_sensitive: result[0].case_sensitive };
+        let set = { name: result[0].name, description: result[0].description, creator: result[0].creator, q: result[0].q_name, a: result[0].a_name, questions: result[0].q_items.split(','), answers: result[0].a_items.split(','), completions: result[0].completions, case_sensitive: result[0].case_sensitive, accent_sensitive: result[0].accent_sensitive, spanish: result[0].spanish };
 
         res.status(201).send(set);
     } catch(err) {
@@ -56,7 +67,7 @@ setsRouter.get('/get/:id', async (req, res) => {
 setsRouter.post('/edit', auth, async (req, res) => {
     try {
         //expect a string, string, string, string, array of string, array of string
-        const { name, description, q, a, questions, answers, id } = req.body;
+        const { name, description, q, a, questions, answers, id, caseSensitive, accentSensitive, spanish } = req.body;
 
         // get set id given and user from db
         //change setRes to make more efficient? just needs to check if set exists
@@ -68,6 +79,17 @@ setsRouter.post('/edit', auth, async (req, res) => {
         if (!userRes[0]) return res.status(400).send('error fetching user');
         if (!userRes[0].sets.includes(id)) return res.status(400).send('you cannot edit a set you do not own');
 
+        // validate boolean variables validity
+        if (caseSensitive !== true && caseSensitive !== false) {
+            return res.status(400).send('caseSensitive must be a boolean');
+        }
+        if (accentSensitive !== true && accentSensitive !== false) {
+            return res.status(400).send('accentSensitive must be a boolean');
+        }
+        if (spanish !== true && spanish !== false) {
+            return res.status(400).send('spanish must be a boolean');
+        }
+
         // join array elements into a comma seperated string for db storage
         let questionsStr = questions.join(',');
         let answersStr = answers.join(',');
@@ -77,7 +99,7 @@ setsRouter.post('/edit', auth, async (req, res) => {
             return res.status(400).send('name is required');
         }
 
-        await db.execute(`UPDATE sets SET name = ?, description = ?, q_name = ?, q_items = ?, a_name = ?, a_items = ? WHERE id = ?`, [name, description || '', q || 'question', questionsStr, a || 'answer', answersStr, id]);
+        await db.execute(`UPDATE sets SET name = ?, description = ?, q_name = ?, q_items = ?, a_name = ?, a_items = ?, case_sensitive = ?, accent_sensitive = ?, spanish = ? WHERE id = ?`, [name, description || '', q || 'question', questionsStr, a || 'answer', answersStr, id, caseSensitive, accentSensitive, spanish]);
         
         res.status(201).send();
     } catch(err) {
