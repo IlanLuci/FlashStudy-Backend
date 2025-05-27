@@ -14,6 +14,8 @@ CREATE TABLE sets (
   description TEXT NOT NULL,
   completions INTEGER, /* number of times the set has been completed */
   case_sensitive BOOLEAN,
+  accent_sensitive BOOLEAN,
+  spanish BOOLEAN,
   q_name TEXT, /* title of questions list (eg: states) */
   q_items TEXT, /* questions (eg: NY) */
   a_name TEXT, /* title of answers list (eg: capitals) */
