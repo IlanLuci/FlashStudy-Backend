@@ -99,7 +99,7 @@ setsRouter.post('/edit', auth, async (req, res) => {
             return res.status(400).send('name is required');
         }
 
-        await db.execute(`UPDATE sets SET name = ?, description = ?, q_name = ?, q_items = ?, a_name = ?, a_items = ?, case_sensitive = ?, accent_sensitive = ?, spanish = ? WHERE id = ?`, [name, description || '', q || 'question', questionsStr, a || 'answer', answersStr, id, caseSensitive, accentSensitive, spanish]);
+        await db.execute(`UPDATE sets SET name = ?, description = ?, q_name = ?, q_items = ?, a_name = ?, a_items = ?, case_sensitive = ?, accent_sensitive = ?, spanish = ? WHERE id = ?`, [name, description || '', q || 'question', questionsStr, a || 'answer', answersStr, caseSensitive, accentSensitive, spanish, id]);
         
         res.status(201).send();
     } catch(err) {
