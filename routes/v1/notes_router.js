@@ -16,7 +16,7 @@ notesRouter.post('/create', auth, async (req, res) => {
 
         // check that both title and subject are provided
         if (!(title && subject)) {
-            return res.status(400).send('title and subject is required');
+            return res.status(400).send('title and subject are required');
         }
 
         // create unique id for note
@@ -66,7 +66,7 @@ notesRouter.post('/edit', auth, async (req, res) => {
 
         // check that both title and subject are provided
         if (!(title && subject)) {
-            return res.status(400).send('title and subject is required');
+            return res.status(400).send('title and subject are required');
         }
 
         await db.execute(`UPDATE notes SET title = ?, subject = ?, note = ? WHERE id = ?`, [title, subject, note, id]);
