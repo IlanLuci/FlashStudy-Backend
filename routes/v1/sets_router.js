@@ -47,6 +47,36 @@ setsRouter.post('/create', auth, async (req, res) => {
     }
 });
 
+setsRouter.post('/clone', auth, async (req, res) => {
+    try {
+        //expect a string, string, string, string, array of string, array of string
+        const { setId } = req.body;
+
+        // check that both name are provided
+        if (!(setId)) {
+            return res.status(400).send('set id to clone is required');
+        }
+
+        // get set from given id
+        let [setRes] = await db.execute(`SELECT * FROM sets WHERE id = ?`, [setId]);
+
+        if (!setRes[0]) {
+            return res.status(400).send('invalid set id');
+        }
+
+        // create unique id for set
+        let id = await createId();
+
+        // save set data and add set to creator's account
+        await db.execute(`INSERT INTO sets (id, creator, name, description, case_sensitive, accent_sensitive, spanish, q_name, q_items, a_name, a_items, cloned_from) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [id, req.user.username, 'Clone of ' + setRes[0].name, setRes[0].description || '', setRes[0].case_sensitive, setRes[0].accent_sensitive, setRes[0].spanish, setRes[0].q_name, setRes[0].q_items, setRes[0].a_name, setRes[0].a_items, setRes[0].id]);
+        await db.execute(`UPDATE accounts SET sets = concat(sets , ?) WHERE username = ?`, [id + ',', req.user.username]);
+        
+        res.status(201).send(id.toString());
+    } catch(err) {
+        console.log(err);
+    }
+});
+
 setsRouter.get('/get/:id', async (req, res) => {
     try {
         // get set from given id

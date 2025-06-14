@@ -19,7 +19,8 @@ CREATE TABLE sets (
   q_name TEXT, /* title of questions list (eg: states) */
   q_items TEXT, /* questions (eg: NY) */
   a_name TEXT, /* title of answers list (eg: capitals) */
-  a_items TEXT /* answers (eg: Buffalo) */
+  a_items TEXT, /* answers (eg: Buffalo) */
+  cloned_from BIGINT /* id of the set this was cloned from */
 );
 
 CREATE TABLE notes (
