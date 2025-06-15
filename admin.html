@@ -1,0 +1,86 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="icon" type="image/x-icon" href="/admin/favicon.png">
+
+        <title>FlashStudy Admin Dashboard</title>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                overflow: hidden;
+            }
+
+            #sidebar {
+                width: 250px;
+                height: 100vh;
+                background-color: #333;
+                color: white;
+                padding: 20px;
+                box-sizing: border-box;
+                box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+            }
+            
+            #timestamp {
+                position: absolute;
+                bottom: 0;
+            }
+
+            #stats {
+                position: absolute;
+                width: calc(100% - 250px);
+                left: 250px;
+                top: 0;
+                padding: 20px;
+            }
+            #stats h2 {
+                margin-top: 0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="sidebar">
+
+            <p id="timestamp"></p>
+        </div>
+
+        <div id="stats">
+            <h2>Usage Statistics</h2>
+            <ul>
+                <li>Total Accounts: <span id="total-accounts">Loading...</span></li>
+                <li>Total Sets: <span id="total-sets">Loading...</span></li>
+                <li>Total Notes: <span id="total-notes">Loading...</span></li>
+            </ul>
+        </div>
+
+        <script>
+            window.addEventListener('load', async () =>
+            {
+                const timestampEle = document.getElementById('timestamp');
+                let now = new Date();
+                timestampEle.innerText = `Last updated: \n ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+
+                const totalAccountsEle = document.getElementById('total-accounts');
+                const totalSetsEle = document.getElementById('total-sets');
+                const totalNotesEle = document.getElementById('total-notes');
+
+                let accountsRes = await fetch(`/admin/total/accounts`);
+                accounts = await accountsRes.json();
+                let setsRes = await fetch(`/admin/total/sets`);
+                sets = await setsRes.json();
+                let notesRes = await fetch(`/admin/total/notes`);
+                notes = await notesRes.json();
+
+                totalAccountsEle.innerText = accounts.count;
+                totalSetsEle.innerText = sets.count;
+                totalNotesEle.innerText = notes.count;
+            })
+        </script>
+    </body>
+</html>
