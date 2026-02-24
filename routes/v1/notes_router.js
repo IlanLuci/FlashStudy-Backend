@@ -1,6 +1,7 @@
 const express = require('express');
 
 const db = require('../../utils/db');
+const { createId } = require('../../utils/utils');
 
 const notesRouter = new express.Router();
 
@@ -51,11 +52,11 @@ notesRouter.get('/get/:id', async (req, res) => {
 
 notesRouter.post('/edit', auth, async (req, res) => {
     try {
-        //expect a string, string, string, json object
+        // expect a string, string, string, json object
         const { title, subject, note, id } = req.body;
         
         // get note id given and user from db
-        //change noteRes to make more efficient? just needs to check if note exists
+        // change noteRes to make more efficient? just needs to check if note exists
         let [noteRes] = await db.execute(`SELECT id FROM notes WHERE id = ?`, [id]);
         let [userRes] = await db.execute(`SELECT notes FROM accounts WHERE username = ?`, [req.user.username]);
 
@@ -79,11 +80,11 @@ notesRouter.post('/edit', auth, async (req, res) => {
 
 notesRouter.post('/delete', auth, async (req, res) => {
     try {
-        //expect a string, string, string, string, array of string, array of string
+        // expect a string, string, string, string, array of string, array of string
         const { id } = req.body;
 
         // get note id given and user from db
-        //change noteRes to make more efficient? just needs to check if note exists
+        // change noteRes to make more efficient? just needs to check if note exists
         let [noteRes] = await db.execute(`SELECT id FROM notes WHERE id = ?`, [id]);
         let [userRes] = await db.execute(`SELECT notes FROM accounts WHERE username = ?`, [req.user.username]);
 
@@ -133,20 +134,5 @@ notesRouter.post('/search', async (req, res) => {
         console.log(err);
     }
 });
-
-async function createId() {
-    //create unique id for note
-    let id = Math.floor(Math.random() * 10000000000000000);
-
-    //check to unsure id is unique
-    let [result] = await db.execute(`SELECT * FROM notes WHERE id = ?`, [id]);
-
-    // if not unique generate a new id
-    if (result[0]) {
-        return await createId();
-    } else {
-        return id;
-    }
-}
 
 module.exports = notesRouter;

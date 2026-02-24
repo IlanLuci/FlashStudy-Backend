@@ -40,7 +40,7 @@ authRouter.post('/register', noauth, async (req, res) => {
             return res.status(400).send('Invalid email address');
         }
         
-        //check if username and/or email are in use
+        // check if username and/or email are in use
         let [usernameTaken] = await db.execute(`SELECT * FROM accounts WHERE username = ?`, [username]);
         let [emailTaken] = await db.execute(`SELECT * FROM accounts WHERE email = ?`, [email]);
 

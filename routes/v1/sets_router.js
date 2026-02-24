@@ -1,6 +1,7 @@
 const express = require('express');
 
 const db = require('../../utils/db');
+const { createId } = require('../../utils/utils');
 
 const setsRouter = new express.Router();
 
@@ -96,11 +97,11 @@ setsRouter.get('/get/:id', async (req, res) => {
 
 setsRouter.post('/edit', auth, async (req, res) => {
     try {
-        //expect a string, string, string, string, array of string, array of string
+        // expect a string, string, string, string, array of string, array of string
         const { name, description, q, a, questions, answers, id, caseSensitive, accentSensitive, spanish } = req.body;
 
         // get set id given and user from db
-        //change setRes to make more efficient? just needs to check if set exists
+        // change setRes to make more efficient? just needs to check if set exists
         let [setRes] = await db.execute(`SELECT id FROM sets WHERE id = ?`, [id]);
         let [userRes] = await db.execute(`SELECT sets FROM accounts WHERE username = ?`, [req.user.username]);
 
@@ -143,7 +144,7 @@ setsRouter.post('/delete', auth, async (req, res) => {
         const { id } = req.body;
 
         // get set id given and user from db
-        //change setRes to make more efficient? just needs to check if set exists
+        // change setRes to make more efficient? just needs to check if set exists
         let [setRes] = await db.execute(`SELECT id FROM sets WHERE id = ?`, [id]);
         let [userRes] = await db.execute(`SELECT sets FROM accounts WHERE username = ?`, [req.user.username]);
 
@@ -166,7 +167,7 @@ setsRouter.post('/delete', auth, async (req, res) => {
 
 setsRouter.post('/completion', async (req, res) => {
     try {
-        //expect a string, string, string, string, array of string, array of string
+        // expect a string, string, string, string, array of string, array of string
         const { id } = req.body;
 
         // get set id given and user from db
@@ -237,20 +238,5 @@ setsRouter.post('/search', async (req, res) => {
         console.log(err);
     }
 });
-
-async function createId() {
-    //create unique id for set
-    let id = Math.floor(Math.random() * 10000000000000000);
-
-    //check to unsure id is unique
-    let [result] = await db.execute(`SELECT * FROM sets WHERE id = ?`, [id]);
-
-    // if not unique generate a new id
-    if (result[0]) {
-        return await createId();
-    } else {
-        return id;
-    }
-}
 
 module.exports = setsRouter;
