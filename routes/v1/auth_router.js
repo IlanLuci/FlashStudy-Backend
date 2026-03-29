@@ -9,6 +9,7 @@ const authRouter = new express.Router();
 const { auth, noauth } = require('../../middleware/auth');
 
 authRouter.get('/check', auth, async (req, res) => {
+    // should be uneccesary to check this, we issued the token so this will only be an issue if the account has been deleted or the username changed since the token was issued
     let [user] = await db.execute(`SELECT * FROM accounts WHERE username = ?`, [req.user.username]);
   
     if (!user[0]) {

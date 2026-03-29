@@ -19,9 +19,9 @@ setsRouter.post('/create', auth, async (req, res) => {
         let questionsStr = questions.join(',');
         let answersStr = answers.join(',');
 
-        // check that both name are provided
-        if (!(name)) {
-            return res.status(400).send('name is required');
+        // check that name is provided and within length limits
+        if (!name || name.length < 3 || name.length > 50) {
+            return res.status(400).send('name must be between 3 and 50 characters');
         }
 
         // validate boolean variables validity
@@ -125,9 +125,9 @@ setsRouter.post('/edit', auth, async (req, res) => {
         let questionsStr = questions.join(',');
         let answersStr = answers.join(',');
 
-        // check that both name are provided
-        if (!(name)) {
-            return res.status(400).send('name is required');
+        // check that name is provided and within length limits
+        if (!name || name.length < 3 || name.length > 50) {
+            return res.status(400).send('name must be between 3 and 50 characters');
         }
 
         await db.execute(`UPDATE sets SET name = ?, description = ?, q_name = ?, q_items = ?, a_name = ?, a_items = ?, case_sensitive = ?, accent_sensitive = ?, spanish = ? WHERE id = ?`, [name, description || '', q || 'question', questionsStr, a || 'answer', answersStr, caseSensitive, accentSensitive, spanish, id]);

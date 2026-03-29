@@ -20,6 +20,11 @@ notesRouter.post('/create', auth, async (req, res) => {
             return res.status(400).send('title and subject are required');
         }
 
+        // check that title is within length limits
+        if (title.length < 3 || title.length > 50) {
+            return res.status(400).send('title must be between 3 and 50 characters');
+        }
+
         // create unique id for note
         let id = await createId();
 
@@ -68,6 +73,11 @@ notesRouter.post('/edit', auth, async (req, res) => {
         // check that both title and subject are provided
         if (!(title && subject)) {
             return res.status(400).send('title and subject are required');
+        }
+
+        // check that title is within length limits
+        if (title.length < 3 || title.length > 50) {
+            return res.status(400).send('title must be between 3 and 50 characters');
         }
 
         await db.execute(`UPDATE notes SET title = ?, subject = ?, note = ? WHERE id = ?`, [title, subject, note, id]);
