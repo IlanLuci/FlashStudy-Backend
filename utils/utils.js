@@ -1,3 +1,5 @@
+const db = require('../db');
+
 async function createId() {
     // create unique id for set
     let id = Math.floor(Math.random() * 10000000000000000);
