@@ -1,9 +1,24 @@
+const path = require('path');
+const envPath = path.join(__dirname, '.env');
+const dotenvResult = require('dotenv').config({ path: envPath, override: true });
+if (dotenvResult.error) {
+    console.error(`[env] dotenv could not read ${envPath}: ${dotenvResult.error.code || dotenvResult.error.message}`);
+} else {
+    console.log(`[env] dotenv loaded from ${envPath}`);
+}
+
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
 
-require('dotenv').config();
+const REQUIRED_ENV = ['HOST', 'PORT', 'USER', 'PASSWORD', 'DATABASE', 'TOKEN_KEY', 'ALLOWED_DOMAINS'];
+const missing = REQUIRED_ENV.filter(k => !process.env[k]);
+if (missing.length) {
+    console.error(`[env] MISSING required vars: ${missing.join(', ')}`);
+} else {
+    console.log(`[env] all required vars present`);
+}
 
 const authRouter = require('./routes/v1/auth_router');
 const setsRouter = require('./routes/v1/sets_router');
