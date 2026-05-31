@@ -1,5 +1,22 @@
 const db = require('./db');
 
+const desiredTables = [
+    {
+        name: 'refresh_tokens',
+        ddl: `CREATE TABLE refresh_tokens (
+            id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            token_hash CHAR(64) NOT NULL,
+            username VARCHAR(64) NOT NULL,
+            expires_at DATETIME NOT NULL,
+            revoked TINYINT(1) NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uk_token_hash (token_hash),
+            KEY idx_username (username),
+            KEY idx_expires (expires_at)
+        )`,
+    },
+];
+
 const desiredIndexes = [
     { table: 'accounts', name: 'idx_username',     cols: 'username(64)',  unique: true  },
     { table: 'accounts', name: 'idx_email',        cols: 'email(191)',    unique: true  },
@@ -37,6 +54,17 @@ async function runMigrations() {
 
     console.log('[migrate] starting');
     const start = Date.now();
+
+    for (const t of desiredTables) {
+        if (await tableExists(t.name)) continue;
+        console.log(`[migrate] CREATE TABLE ${t.name}`);
+        try {
+            await db.query(t.ddl);
+            console.log(`[migrate] ok: table ${t.name}`);
+        } catch (err) {
+            console.error(`[migrate] FAILED creating ${t.name}:`, err.code || err.message);
+        }
+    }
 
     const seenTables = {};
     for (const idx of desiredIndexes) {

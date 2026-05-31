@@ -70,16 +70,12 @@
                 const totalSetsEle = document.getElementById('total-sets');
                 const totalNotesEle = document.getElementById('total-notes');
 
-                let accountsRes = await fetch(`/admin/total/accounts`);
-                accounts = await accountsRes.json();
-                let setsRes = await fetch(`/admin/total/sets`);
-                sets = await setsRes.json();
-                let notesRes = await fetch(`/admin/total/notes`);
-                notes = await notesRes.json();
+                const totalsRes = await fetch(`/admin/total`);
+                const totals = await totalsRes.json();
 
-                totalAccountsEle.innerText = accounts.count;
-                totalSetsEle.innerText = sets.count;
-                totalNotesEle.innerText = notes.count;
+                totalAccountsEle.innerText = totals.accounts;
+                totalSetsEle.innerText = totals.sets;
+                totalNotesEle.innerText = totals.notes;
             })
         </script>
     </body>

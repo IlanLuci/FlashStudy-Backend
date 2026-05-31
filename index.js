@@ -11,6 +11,8 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const REQUIRED_ENV = ['HOST', 'PORT', 'USER', 'PASSWORD', 'DATABASE', 'TOKEN_KEY', 'ALLOWED_DOMAINS'];
 const missing = REQUIRED_ENV.filter(k => !process.env[k]);
@@ -29,6 +31,12 @@ const { runMigrations } = require('./utils/migrate');
 const app = express();
 const port = 5001;
 
+app.set('trust proxy', 1);
+
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 app.use(compression());
 app.use(express.json({ limit: '512kb' }));
 app.use(cookieParser());
@@ -38,9 +46,39 @@ app.use(cors({
     maxAge: 86400,
 }));
 
+const clientIp = (req) => req.headers['cf-connecting-ip'] || req.ip;
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    keyGenerator: clientIp,
+    message: 'Too many attempts, please try again later.',
+});
+const registerLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 5,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    keyGenerator: clientIp,
+    message: 'Too many attempts, please try again later.',
+});
+const refreshLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 60,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    keyGenerator: clientIp,
+});
+
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+
+app.use('/v1/auth/login', loginLimiter);
+app.use('/v1/auth/register', registerLimiter);
+app.use('/v1/auth/refresh', refreshLimiter);
 
 app.use('/v1/auth', authRouter);
 app.use('/v1/sets', setsRouter);

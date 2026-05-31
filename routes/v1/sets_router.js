@@ -96,6 +96,7 @@ setsRouter.get('/get/:id', async (req, res) => {
         if (!result[0]) return res.status(400).send('invalid set id');
 
         const r = result[0];
+        res.set('Cache-Control', 'public, max-age=30');
         res.status(201).send({
             name: r.name,
             description: r.description,

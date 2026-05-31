@@ -11,6 +11,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.11.0"
   }
