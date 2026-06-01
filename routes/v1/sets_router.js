@@ -88,7 +88,7 @@ setsRouter.post('/clone', auth, async (req, res) => {
 setsRouter.get('/get/:id', async (req, res) => {
     try {
         const [result] = await db.execute(
-            `SELECT name, description, creator, q_name, q_items, a_name, a_items, completions, case_sensitive, accent_sensitive, spanish
+            `SELECT name, description, creator, q_name, q_items, a_name, a_items, completions, case_sensitive, accent_sensitive, spanish, last_edited
              FROM sets WHERE id = ? LIMIT 1`,
             [req.params.id]
         );
@@ -109,6 +109,7 @@ setsRouter.get('/get/:id', async (req, res) => {
             case_sensitive: r.case_sensitive,
             accent_sensitive: r.accent_sensitive,
             spanish: r.spanish,
+            last_edited: r.last_edited,
         });
     } catch (err) {
         console.log(err);
@@ -147,7 +148,7 @@ setsRouter.post('/edit', auth, async (req, res) => {
         }
 
         await db.execute(
-            `UPDATE sets SET name = ?, description = ?, q_name = ?, q_items = ?, a_name = ?, a_items = ?, case_sensitive = ?, accent_sensitive = ?, spanish = ? WHERE id = ?`,
+            `UPDATE sets SET name = ?, description = ?, q_name = ?, q_items = ?, a_name = ?, a_items = ?, case_sensitive = ?, accent_sensitive = ?, spanish = ?, last_edited = CURRENT_TIMESTAMP WHERE id = ?`,
             [name, description || '', q || 'question', questionsStr, a || 'answer', answersStr, caseSensitive, accentSensitive, spanish, id]
         );
 

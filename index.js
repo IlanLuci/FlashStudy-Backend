@@ -27,6 +27,7 @@ const setsRouter = require('./routes/v1/sets_router');
 const notesRouter = require('./routes/v1/notes_router');
 const adminRouter = require('./routes/admin_router');
 const { runMigrations } = require('./utils/migrate');
+const { startDailyScheduler } = require('./utils/stats');
 
 const app = express();
 const port = 5001;
@@ -91,6 +92,7 @@ app.use('/admin', adminRouter);
     } catch (err) {
         console.error('[migrate] uncaught:', err);
     }
+    startDailyScheduler();
     app.listen(port, () => {
         console.log(`App listening on port ${port}`);
     });

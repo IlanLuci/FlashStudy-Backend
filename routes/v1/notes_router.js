@@ -42,7 +42,7 @@ notesRouter.post('/create', auth, async (req, res) => {
 notesRouter.get('/get/:id', async (req, res) => {
     try {
         const [result] = await db.execute(
-            `SELECT title, subject, creator, note FROM notes WHERE id = ? LIMIT 1`,
+            `SELECT title, subject, creator, note, last_edited FROM notes WHERE id = ? LIMIT 1`,
             [req.params.id]
         );
 
@@ -55,6 +55,7 @@ notesRouter.get('/get/:id', async (req, res) => {
             subject: r.subject,
             creator: r.creator,
             note: r.note,
+            last_edited: r.last_edited,
         });
     } catch (err) {
         console.log(err);
@@ -83,7 +84,7 @@ notesRouter.post('/edit', auth, async (req, res) => {
         }
 
         await db.execute(
-            `UPDATE notes SET title = ?, subject = ?, note = ? WHERE id = ?`,
+            `UPDATE notes SET title = ?, subject = ?, note = ?, last_edited = CURRENT_TIMESTAMP WHERE id = ?`,
             [title, subject, note, id]
         );
 

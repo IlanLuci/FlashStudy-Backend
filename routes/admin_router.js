@@ -3,6 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const db = require('../utils/db');
+const { todayInNY } = require('../utils/stats');
 
 const adminRouter = new express.Router();
 
@@ -93,6 +94,19 @@ adminRouter.get('/total/notes', auth, async (req, res) =>
 {
     let [notesRes] = await db.execute('select COUNT(*) as c from notes');
     res.status(200).json({ count: notesRes[0].c });
+});
+
+adminRouter.get('/history', auth, async (req, res) =>
+{
+    const days = Math.max(1, Math.min(parseInt(req.query.days, 10) || 30, 365));
+    const [rows] = await db.execute(
+        `SELECT DATE_FORMAT(date, '%Y-%m-%d') AS date, accounts, sets, notes
+         FROM usage_stats
+         WHERE date >= DATE_SUB(?, INTERVAL ? DAY)
+         ORDER BY date ASC`,
+        [todayInNY(), days]
+    );
+    res.status(200).json(rows);
 });
 
 module.exports = adminRouter;

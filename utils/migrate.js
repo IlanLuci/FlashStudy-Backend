@@ -15,6 +15,21 @@ const desiredTables = [
             KEY idx_expires (expires_at)
         )`,
     },
+    {
+        name: 'usage_stats',
+        ddl: `CREATE TABLE usage_stats (
+            date DATE NOT NULL PRIMARY KEY,
+            accounts INT NOT NULL,
+            sets INT NOT NULL,
+            notes INT NOT NULL,
+            recorded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )`,
+    },
+];
+
+const desiredColumns = [
+    { table: 'sets',  name: 'last_edited', ddl: 'DATETIME NULL' },
+    { table: 'notes', name: 'last_edited', ddl: 'DATETIME NULL' },
 ];
 
 const desiredIndexes = [
@@ -31,6 +46,16 @@ async function indexExists(table, name) {
     const [rows] = await db.query(
         `SELECT 1 FROM information_schema.statistics
          WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?
+         LIMIT 1`,
+        [table, name]
+    );
+    return rows.length > 0;
+}
+
+async function columnExists(table, name) {
+    const [rows] = await db.query(
+        `SELECT 1 FROM information_schema.columns
+         WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?
          LIMIT 1`,
         [table, name]
     );
@@ -67,6 +92,28 @@ async function runMigrations() {
     }
 
     const seenTables = {};
+
+    for (const col of desiredColumns) {
+        if (seenTables[col.table] === undefined) {
+            seenTables[col.table] = await tableExists(col.table);
+        }
+        if (!seenTables[col.table]) {
+            console.log(`[migrate] table ${col.table} not found — skipping column ${col.name}`);
+            continue;
+        }
+        if (await columnExists(col.table, col.name)) {
+            continue;
+        }
+        const ddl = `ALTER TABLE \`${col.table}\` ADD COLUMN \`${col.name}\` ${col.ddl}`;
+        console.log(`[migrate] ${ddl}`);
+        try {
+            await db.query(ddl);
+            console.log(`[migrate] ok: column ${col.table}.${col.name}`);
+        } catch (err) {
+            console.error(`[migrate] FAILED column ${col.table}.${col.name}:`, err.code || err.message);
+        }
+    }
+
     for (const idx of desiredIndexes) {
         if (seenTables[idx.table] === undefined) {
             seenTables[idx.table] = await tableExists(idx.table);
